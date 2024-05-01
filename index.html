@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typing Game</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+    }
+
+    #container {
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        color: #333;
+    }
+
+    p {
+        margin-bottom: 20px;
+    }
+
+    #word {
+        font-size: 36px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    input {
+        font-size: 18px;
+        padding: 10px;
+        width: 100%;
+        box-sizing: border-box;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        outline: none;
+    }
+
+    input:focus {
+        border-color: #007bff;
+    }
+
+    #score {
+        font-size: 20px;
+        margin-top: 20px;
+    }
+
+    #timer {
+        font-size: 20px;
+        color: #555;
+    }
+</style>
+</head>
+<body>
+<div id="container">
+    <h1>Typing Game</h1>
+    <p>Type the word below:</p>
+    <p id="word">start typing...</p>
+    <input type="text" id="userInput" autofocus>
+    <p id="score">Score: 0</p>
+    <p id="timer">Time: <span id="time">0</span> seconds</p>
+</div>
+
+<script>
+    const words = ['apple', 'banana', 'cherry', 'date', ];
+
+    let score = 0;
+    let correctKeystrokes = 0;
+    let totalKeystrokes = 0;
+    let currentWordIndex = 0;
+    let currentWord = words[currentWordIndex];
+    let startTime;
+    let timerInterval;
+
+    const wordElement = document.getElementById('word');
+    const userInput = document.getElementById('userInput');
+    const scoreElement = document.getElementById('score');
+    const timeElement = document.getElementById('time');
+
+    function updateWord() {
+        currentWord = words[currentWordIndex];
+        wordElement.textContent = currentWord;
+        userInput.value = '';
+    }
+
+    function startGame() {
+        startTime = new Date().getTime();
+        updateWord();
+        userInput.focus();
+        timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+        const currentTime = new Date().getTime();
+        const elapsedTime = Math.floor((currentTime - startTime) / 1000);
+        timeElement.textContent = elapsedTime;
+    }
+
+    function endGame() {
+        clearInterval(timerInterval);
+        const accuracy = (correctKeystrokes / totalKeystrokes) * 100;
+        const restart = confirm(`Game Over!\nScore: ${score}\nTime: ${timeElement.textContent} seconds\nAccuracy: ${accuracy.toFixed(2)}%\n\nDo you want to play again?`);
+        if (restart) {
+            location.reload();
+        }
+    }
+
+    userInput.addEventListener('input', function(event) {
+        const userInputValue = userInput.value;
+        const currentWordValue = currentWord.substring(0, userInput.value.length);
+
+        if (userInputValue === currentWordValue) {
+            // Correct keystroke
+            totalKeystrokes++;
+            correctKeystrokes++;
+
+            if (userInput.value === currentWord) {
+                // Completed the word
+                score++;
+                scoreElement.textContent = 'Score: ' + score;
+                currentWordIndex = (currentWordIndex + 1) % words.length;
+                if (currentWordIndex === 0) {
+                    endGame();
+                } else {
+                    updateWord();
+                }
+            }
+        } else {
+            // Incorrect keystroke
+            userInput.value = currentWordValue;
+            totalKeystrokes++;
+        }
+    });
+
+    startGame();
+</script>
+</body>
+</html>
